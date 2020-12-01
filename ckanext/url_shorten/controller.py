@@ -3,9 +3,6 @@ from ckan.plugins import toolkit
 import ckan.model as model
 from ckan.lib import helpers as h
 from ckan.common import c
-import sys
-import urllib
-import traceback
 import logging
 
 log = logging.getLogger(__name__)
