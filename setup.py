@@ -82,6 +82,9 @@ setup(
         [ckan.plugins]
         url_shorten=ckanext.url_shorten.plugin:UrlShortenMixinPlugin
 
+        [paste.paster_command]
+        url-shorten=ckanext.url_shorten.command:UrlShortenCommand
+
         [babel.extractors]
         ckan = ckan.lib.extract:extract_ckan
     ''',

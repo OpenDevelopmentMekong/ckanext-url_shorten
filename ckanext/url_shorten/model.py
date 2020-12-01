@@ -1,7 +1,7 @@
 from sqlalchemy import Column
 from sqlalchemy import types
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import exc as orm_exceptions
+from sqlalchemy import exc as orm_exceptions
 from sqlalchemy import or_, and_
 from ckan.plugins import toolkit
 import ckan.model as model
@@ -27,7 +27,7 @@ def convert_to_name(val):
     if not val:
         return ''
 
-    return val.sptrip().lower().replace(" ", "-")
+    return val.strip().lower().replace(" ", "-")
 
 
 class UrlShorten(Base):
@@ -49,15 +49,16 @@ class UrlShorten(Base):
         Create entry
         :return:
         """
-        long_url = kwargs.get('url', '')
-        name = kwargs.get('')
-        validators.validate_url(url)
+        long_url = kwargs.get(u'long_url', u'')
+        name = kwargs.get(u'name', u'')
+        validators.validate_url(long_url)
 
-        rec = cls.get_entry(url=long_url)
+        rec = cls.get_entry(id=None, url=long_url)
 
         if not rec:
+            _uuid = get_uuid()
             rec = cls()
-            rec.id = get_uuid
+            rec.id = _uuid
             rec.name = convert_to_name(name or _uuid)
             rec.long_url = long_url
             model.Session.add(rec)
@@ -80,14 +81,14 @@ class UrlShorten(Base):
         _id = kwargs.get(u'id', u'')
         rec = cls.get_entry(id=_id)
         if not rec:
-            raise toolkit.NotFound(u"Given record not found")
+            raise toolkit.ObjectNotFound(u"Given record not found")
 
         if u'name' in kwargs:
             rec.name = convert_to_name(kwargs[u'name'])
 
         if u'long_url' in kwargs:
-            validators.validate_url(kwargs[u'url'])
-            rec.long_url = kwargs[u'url']
+            validators.validate_url(kwargs[u'long_url'])
+            rec.long_url = kwargs[u'long_url']
 
         try:
             model.Session.commit()
@@ -108,31 +109,32 @@ class UrlShorten(Base):
             raise toolkit.ValidationError(u"No id is given to delete record")
         rec = cls.get_entry(id=id)
         if not rec:
-            raise toolkit.NotFound(u"Given record not found")
+            raise toolkit.ObjectNotFound(u"Given record not found")
 
         rec.is_active = False
         model.Session.commit()
         return True
 
     @classmethod
-    def get_entry(cls, id=id, url=none):
+    def get_entry(cls, id=None, url=None):
         """
         Get an entry given id or name
         :param id:
         :param url:
         :return:
         """
-        if url.strip():
+
+        if url and url.strip():
             return model.Session.query(cls)\
-                .filter(and_(cls.long_url == url, cls.is_active is True))\
-                .one_or_none()
+                .filter(and_(cls.long_url == url, cls.is_active.is_(True)))\
+                .first()
 
         if not id:
             raise toolkit.ValidationError(u"No id or name given")
 
         return model.Session.query(cls) \
-            .filter(and_(or_(cls.id == id, cls.name == id), cls.is_active is True))\
-            .one_or_none()
+            .filter(and_(or_(cls.id == id, cls.name == id), cls.is_active.is_(True)))\
+            .first()
 
     def as_dict(self):
         """
@@ -147,10 +149,12 @@ class UrlShorten(Base):
         }
 
         res[u'short_url'] = os.path.join(_site_url, _url_path, res[u'name'])
+        res[u'created'] = str(res[u'created'])
+        res[u'updated'] = str(res[u'updated'])
 
         return res
 
 
-def init_table(engine):
-    Base.metadata.create_all(engine)
+def init_table():
+    Base.metadata.create_all(model.meta.engine)
     log.info('Stetting up url shortner table')

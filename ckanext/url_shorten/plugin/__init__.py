@@ -8,7 +8,7 @@ try:
 except CkanVersionException:
     from ckanext.url_shorten.plugin.pylons_plugin import UrlShortenMixinPylons as UrlShorten
 else:
-    from ckanext.googleanalytics.plugin.flask_plugin import UrlShortenMixinFlask as UrlShorten
+    from ckanext.url_shorten.plugin.flask_plugin import UrlShortenMixinFlask as UrlShorten
 
 
 class UrlShortenMixinPlugin(UrlShorten):

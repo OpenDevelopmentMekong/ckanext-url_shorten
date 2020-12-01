@@ -5,6 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
+@toolkit.side_effect_free
 def get_short_url(context, data_dict):
     """
     Fetch the record by id or name. If not found raise error
@@ -14,7 +15,7 @@ def get_short_url(context, data_dict):
     """
     rec = UrlShorten.get_entry(id=data_dict.get(u'id', u''))
     if not rec:
-        raise toolkit.NotFound(u"Given id: {} not found".format(data_dict.get(u'id', u'')))
+        raise toolkit.ObjectNotFound(u"Given id: {} not found".format(data_dict.get(u'id', u'')))
     return rec.as_dict()
 
 
@@ -25,7 +26,8 @@ def create_short_url(context, data_dict):
     :param data_dict:
     :return:
     """
-    toolkit.check_access(u'sysadmin', context, data_dict)
+    if toolkit.config.get('ckanext.url_shortner_key', None) != data_dict.get('token_key', '').strip():
+        raise toolkit.NotAuthorized("No token_key parameter provided")
     _ = data_dict.pop(u'id', u'')
     md = UrlShorten.create_entry(**data_dict)
     return md.as_dict()
@@ -38,7 +40,8 @@ def update_short_url(context, data_dict):
     :param data_dict:
     :return:
     """
-    toolkit.check_access(u'sysadmin', context, data_dict)
+    if toolkit.config.get('ckanext.url_shortner_key', None) != data_dict.get('token_key', '').strip():
+        raise toolkit.NotAuthorized("No token_key parameter provided")
     md = UrlShorten.update_entry(**data_dict)
     return md.as_dict()
 
@@ -50,7 +53,8 @@ def delete_short_url(context, data_dict):
     :param data_dict:
     :return:
     """
-    toolkit.check_access(u'sysadmin', context, data_dict)
+    if toolkit.config.get('ckanext.url_shortner_key', None) != data_dict.get('token_key', '').strip():
+        raise toolkit.NotAuthorized("No token_key parameter provided")
     _ = UrlShorten.delete_entry(**data_dict)
     return {
         u"msg": u"Entry {} deleted".format(data_dict.get(u'id', ''))
