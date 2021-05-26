@@ -13,10 +13,17 @@ def get_short_url(context, data_dict):
     :param data_dict:
     :return:
     """
+
     rec = UrlShorten.get_entry(id=data_dict.get(u'id', u''))
     if not rec:
         raise toolkit.ObjectNotFound(u"Given id: {} not found".format(data_dict.get(u'id', u'')))
-    return rec.as_dict()
+
+    result = rec.as_dict()
+    if data_dict.get(u'additional_url_params', {}):
+        url_params = u"&".join([u"{}={}".format(k, v) for k, v in data_dict[u'additional_url_params'].items()])
+        result[u'long_url'] = result.get(u'long_url', u'') + u'&'+url_params
+
+    return result
 
 
 def create_short_url(context, data_dict):

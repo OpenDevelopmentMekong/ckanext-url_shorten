@@ -1,7 +1,7 @@
-from flask import Blueprint, redirect, url_for
+from flask import Blueprint, redirect
 from ckan.plugins import toolkit
-import ckan.model as model
-from ckan.common import c
+from ckanext.url_shorten.helpers import parse_request_parameters_to_dict
+from ckanext.url_shorten.utils import get_long_url
 import logging
 
 log = logging.getLogger(__name__)
@@ -19,20 +19,7 @@ def short_url_redirect(id=None):
     :param id: str (short url id)
     :return: redirect
     """
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': c.user
-    }
-    long_url = toolkit.config.get('ckan.site_url')
-    try:
-        long_url = toolkit.get_action(u'get_short_url')(context, {u'id': id})[u'long_url']
-    except toolkit.NotFound as e:
-        toolkit.abort(404, toolkit._(u"Url not found"))
-    except Exception as e:
-        log.error(e)
-        toolkit.abort(404, toolkit._(u"Something went wrong"))
-
+    long_url = get_long_url(id)
     return redirect(long_url)
 
 

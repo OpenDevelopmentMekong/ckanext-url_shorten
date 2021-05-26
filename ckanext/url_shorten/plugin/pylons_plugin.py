@@ -11,5 +11,5 @@ class UrlShortenMixinPylons(plugins.SingletonPlugin):
         map.connect(u'url_shorten',
                     u'/'+toolkit.config.get(u'ckanext.url_shorten.url_prefix', u'odm-short-url')+u'/{id}',
                     controller=u'ckanext.url_shorten.controller:ShortUrlController',
-                    action=u'short_url_redirect')
+                    action=u'short_url_redirect', methods=('GET', ))
         return map
