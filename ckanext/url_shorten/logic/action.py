@@ -55,7 +55,7 @@ def delete_short_url(context, data_dict):
     """
     if toolkit.config.get('ckanext.url_shortner_key', None) != data_dict.get('token_key', '').strip():
         raise toolkit.NotAuthorized("No token_key parameter provided")
-    _ = UrlShorten.delete_entry(**data_dict)
+    _ = UrlShorten.delete_entry(data_dict.get('id', None))
     return {
         u"msg": u"Entry {} deleted".format(data_dict.get(u'id', ''))
     }

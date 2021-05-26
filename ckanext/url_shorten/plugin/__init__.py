@@ -1,15 +1,13 @@
 import ckan.plugins as plugins
 from ckan.plugins import toolkit
-from ckan.exceptions import CkanVersionException
 from ckanext.url_shorten.logic import action
 
-try:
-    toolkit.requires_ckan_version("2.9")
-except CkanVersionException:
-    from ckanext.url_shorten.plugin.pylons_plugin import UrlShortenMixinPylons as UrlShorten
-else:
-    from ckanext.url_shorten.plugin.flask_plugin import UrlShortenMixinFlask as UrlShorten
 
+if toolkit.check_ckan_version(min_version='2.9.0'):
+    from ckanext.url_shorten.plugin.flask_plugin import UrlShortenMixinFlask as UrlShorten
+else:
+    from ckanext.url_shorten.plugin.pylons_plugin import UrlShortenMixinPylons as UrlShorten
+    
 
 class UrlShortenMixinPlugin(UrlShorten):
     plugins.implements(plugins.IConfigurer)
@@ -18,9 +16,9 @@ class UrlShortenMixinPlugin(UrlShorten):
     # IConfigurer
 
     def update_config(self, config_):
-        toolkit.add_template_directory(config_, 'templates')
-        toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic', 'url_shorten')
+        toolkit.add_template_directory(config_, '../templates')
+        toolkit.add_public_directory(config_, '../public')
+        toolkit.add_resource('../fanstatic', 'url_shorten')
 
     ## IActions
     def get_actions(self):
