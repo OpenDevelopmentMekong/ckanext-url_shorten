@@ -13,6 +13,10 @@ import logging
 log = logging.getLogger(__name__)
 Base = declarative_base()
 
+try:
+    unicode
+except:
+    unicode = str
 
 def get_uuid():
     return unicode(uuid.uuid4())
