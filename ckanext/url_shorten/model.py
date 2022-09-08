@@ -55,7 +55,6 @@ class UrlShorten(Base):
         """
         long_url = kwargs.get(u'long_url', u'')
         name = kwargs.get(u'name', u'')
-        validators.validate_url(long_url)
 
         rec = cls.get_entry(id=None, url=long_url)
 
@@ -91,7 +90,6 @@ class UrlShorten(Base):
             rec.name = convert_to_name(kwargs[u'name'])
 
         if u'long_url' in kwargs:
-            validators.validate_url(kwargs[u'long_url'])
             rec.long_url = kwargs[u'long_url']
 
         try:
